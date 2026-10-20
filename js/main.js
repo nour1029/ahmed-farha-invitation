@@ -24,31 +24,41 @@ const WEDDING = {
 
   couple: {
     // Order matters: `one` reads first in the hero stack.
-    one: 'Mazen',
-    two: 'Shams',
+    one: 'Ahmed',
+    two: 'Farha',
     // Wax seal monogram (Phase 1 / Phase 2). NOTE: the envelope's still and
     // its opening film are photographed wax, not live text — they still
-    // read "R&Z" and do not update from this value. See assets/img/README.md.
-    monogram: 'M&S',
+    // read "M&S" and do not update from this value. See assets/img/README.md.
+    monogram: 'A&F',
   },
 
   // ISO 8601 WITH offset. The offset is not optional — without it the
   // countdown silently shifts by the guest's own timezone.
-  // 29 Aug 2026, 5:00 PM, America/New_York (EDT, -04:00). Time carried over
-  // from the placeholder — confirm the actual ceremony start time.
-  datetime: '2026-08-29T17:00:00-04:00',
+  // 20 Nov 2026, 4:00 PM, Africa/Cairo. Egypt's summer time ends on the last
+  // Thursday of October, so November is back on EET, +02:00 — verified
+  // against the IANA tz database, not assumed.
+  datetime: '2026-11-20T16:00:00+02:00',
+
+  // When the celebration ends (4–7 PM). Printed in the hero only; the
+  // countdown still targets `datetime`.
+  endtime: '2026-11-20T19:00:00+02:00',
 
   // The wedding's own timezone. Everything printed on the page is rendered
   // in *this* zone, so a guest reading from Sydney still sees the date and
   // time the wedding actually happens at, not their local translation.
-  timezone: 'America/New_York',
+  timezone: 'Africa/Cairo',
 
   // How the date is printed in the hero. Mirrors the reference's `27.09.26`.
   dateFormat: 'dotted',
 
   venue: {
-    name: 'Laveora Wedding Hall',
-    addressLines: ['El Wahat Road, 6th of October City', 'Giza Governorate, Egypt'],
+    name: 'Tulip Hall',
+    addressLines: ['Police Club, Mountain Rose Halls', '6th of October City, Giza, Egypt'],
+
+    // What the map searches while `coords` is null. The hall name alone
+    // doesn't geocode; this is the place the couple's own Maps link
+    // (maps.app.goo.gl/Z83HxtUdxem5ug2x5) resolves to.
+    mapQuery: 'Mountain Rose hotel, 6th of October City, Giza Governorate',
 
     // Exact pin for the map embed and the Open in Maps link (Phase 8).
     // Left null on purpose: nobody has supplied the hall's coordinates, and
@@ -67,10 +77,9 @@ const WEDDING = {
   // `time` label and an `event` line, so nothing else had to change.
   // Add or remove stops freely.
   schedule: [
-    { time: '01.05.2025', event: 'Our First Meeting' },
-    { time: '23.08.2025', event: 'She Said Yes'       },
-    { time: '29.10.2025', event: 'Engagement'         },
-    { time: '29.08.2026', event: 'Forever Begins'     },
+    { time: '09.12.2019', event: 'Our First Meeting'  },
+    { time: '29.12.2019', event: 'Officially Together' },
+    { time: '20.11.2026', event: 'Forever Begins'     },
   ],
 
   // Phase 11. Relative path into assets/audio/, e.g. 'assets/audio/music.mp3'.
@@ -95,6 +104,7 @@ const WEDDING = {
    ----------------------------------------------------------- */
 
 const WEDDING_DATE = new Date(WEDDING.datetime);
+const WEDDING_END  = new Date(WEDDING.endtime);
 
 const TZ = WEDDING.timezone;
 
@@ -134,6 +144,7 @@ const WEDDING_TEXT = {
   'date':      fmt[WEDDING.dateFormat](WEDDING_DATE),
   'date.long': fmt.long(WEDDING_DATE),
   'time':      fmt.time(WEDDING_DATE),
+  'time.range': `${fmt.time(WEDDING_DATE)} – ${fmt.time(WEDDING_END)}`,
 
   'venue.name':    WEDDING.venue.name,
   'venue.address': WEDDING.venue.addressLines.join(', '),
@@ -509,11 +520,11 @@ function initScheduleRose() {
    ----------------------------------------------------------- */
 
 function initVenue() {
-  const { coords, name, addressLines } = WEDDING.venue;
+  const { coords, name, addressLines, mapQuery } = WEDDING.venue;
   const fullAddress = [name, ...addressLines].join(', ');
 
   // What the maps get: a lat,lng pair if we have one, the address if not.
-  const query = coords ? `${coords.lat},${coords.lng}` : fullAddress;
+  const query = coords ? `${coords.lat},${coords.lng}` : (mapQuery || fullAddress);
   // Zooming to the doorstep only makes sense once the pin is the doorstep.
   const zoom = coords ? 16 : 13;
 
