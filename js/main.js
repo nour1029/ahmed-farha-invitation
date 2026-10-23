@@ -28,7 +28,7 @@ const WEDDING = {
     two: 'Farha',
     // Wax seal monogram (Phase 1 / Phase 2). NOTE: the envelope's still and
     // its opening film are photographed wax, not live text — they still
-    // read "M&S" and do not update from this value. See assets/img/README.md.
+    // read "A&F" and do not update from this value. See assets/img/README.md.
     monogram: 'A&F',
   },
 
